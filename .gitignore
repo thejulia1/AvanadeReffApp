@@ -1,3 +1,15 @@
-.env
 node_modules/
-database.db 
+.expo/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+.env
+
+# macOS
+.DS_Store

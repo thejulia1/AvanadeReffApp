@@ -1,34 +1,67 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, Image, Alert, TouchableWithoutFeedback, Button} from 'react-native';
-import React from 'react';
+import React, { useEffect, useState }  from 'react';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-//import { getImageforDate, getImageforToday } from './utils/api';
+//import { config } from 'dotenv';
+import { SECRET_API_KEY } from './config';
 
 
 //filler var for photo description and name
-let photoDescrip = "...";
-let photoName = "Name of Photo";
-// Event handler for pressing image
-const descripAlert = () => {Alert.alert(photoName, photoDescrip)};
+const baseurl = 'https://api.nasa.gov/planetary/apod?api_key='
 
-export default function App() {
-  
-  return (
-    <SafeAreaView style={styles.container}>
+const App = () => {
+  //Set state
+  const [image, setImage] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+  const [errorOccured, setErrorOcured] = useState(false);
+
+  const fetchingapi = () => {
+    fetch(baseurl + SECRET_API_KEY)
+      .then((response) => response.json())
+      .then((rjson) => setImage(rjson))
+      .catch((error) => alert(error) && setErrorOcured(true))
+      .finally(() => setLoading(false));
+      console.log(image);
+  }
+
+  // Event handler for pressing image
+  const descripAlert = () => {Alert.alert(image.title, image.explanation)};
+  const genPic = () => {console.log(isLoading)};
+ 
+  useEffect(() => {
+    if (!errorOccured && isLoading) {
+      fetchingapi()}});
+
+  if (!isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <TouchableWithoutFeedback onPress={genPic}>
+        <Text style={styles.titleText}> NASA PICTURE OF THE DAY</Text>
+        </TouchableWithoutFeedback>
+        
+        <StatusBar style="auto" />
+        <TouchableWithoutFeedback onPress={descripAlert}>
+        <Image 
+        style={styles.picture}
+          source={{ 
+            width: 350,
+            height: 600,
+          uri: image.hdurl} }/>
+        </TouchableWithoutFeedback>
+        <Button title="Find Picture By Date" color="white" onPress={descripAlert}/>
+      </SafeAreaView>
+    );
+  } else {
+    return (
+      <SafeAreaView style={styles.container}>
+      <TouchableWithoutFeedback onPress={genPic}>
       <Text style={styles.titleText}> NASA PICTURE OF THE DAY</Text>
-      <StatusBar style="auto" />
-      <TouchableWithoutFeedback onPress={descripAlert}>
-      <Image 
-      style={styles.picture}
-        source={{ 
-          width: 350,
-          height: 600,
-          //this is a filler image - not for final product 
-          uri: "https://picsum.photos/200/300"}}/>
       </TouchableWithoutFeedback>
-      <Button title="Find Picture By Date" color="white" onPress={/* filler input */ descripAlert}/>
+      <StatusBar style="auto" />
+      <Button title="Find Picture By Date" color="white" onPress={ /** filler input*/ descripAlert}/>
     </SafeAreaView>
-  );
+    )
+  } 
 }
 
 const styles = StyleSheet.create({
@@ -50,4 +83,5 @@ const styles = StyleSheet.create({
     //right: 80,
     //top: 200,
   }
-});
+}); 
+export default App;

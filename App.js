@@ -1,22 +1,33 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, Image, Alert, TouchableWithoutFeedback, Button} from 'react-native';
-import React, { useEffect, useState }  from 'react';
+import { StyleSheet, Text, View, SafeAreaView, Image, Alert, TouchableWithoutFeedback, Button,  Dimensions } from 'react-native';
+import React, { useEffect, useState, Component}  from 'react';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 //import { config } from 'dotenv';
 import { SECRET_API_KEY } from './config';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
+const lib = require('./dateConverter');
+
 
 
 //filler var for photo description and name
 const baseurl = 'https://api.nasa.gov/planetary/apod?api_key='
+const urlWithDate = '&date='
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 const App = () => {
+
+
+
   //Set state
   const [image, setImage] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [errorOccured, setErrorOcured] = useState(false);
 
-  const fetchingapi = () => {
-    fetch(baseurl + SECRET_API_KEY)
+  const fetchingapi = (aUrl) => {
+    fetch(aUrl)
       .then((response) => response.json())
       .then((rjson) => setImage(rjson))
       .catch((error) => alert(error) && setErrorOcured(true))
@@ -24,13 +35,32 @@ const App = () => {
       console.log(image);
   }
 
+  //date picker config
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    //console.warn("A date has been picked: ", date);
+    const day = date.toString();
+    fetchingapi(baseurl + SECRET_API_KEY + urlWithDate + lib.convert(day));
+    hideDatePicker();
+  };
+
   // Event handler for pressing image
   const descripAlert = () => {Alert.alert(image.title, image.explanation)};
   const genPic = () => {console.log(isLoading)};
  
+  //calls fetchingapi funtion
   useEffect(() => {
     if (!errorOccured && isLoading) {
-      fetchingapi()}});
+      fetchingapi(baseurl + SECRET_API_KEY)}});
 
   if (!isLoading) {
     return (
@@ -44,11 +74,18 @@ const App = () => {
         <Image 
         style={styles.picture}
           source={{ 
-            width: 350,
-            height: 600,
-          uri: image.hdurl} }/>
+            width: windowWidth,
+            height: windowHeight / 1.27,
+          uri: image.url} }/>
         </TouchableWithoutFeedback>
-        <Button title="Find Picture By Date" color="white" onPress={descripAlert}/>
+
+        <Button title="Find Picture By Date" color="white" onPress={showDatePicker}/>
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="date"
+          onConfirm={handleConfirm}
+          onCancel={hideDatePicker}
+      />
       </SafeAreaView>
     );
   } else {
@@ -61,7 +98,7 @@ const App = () => {
       <Button title="Find Picture By Date" color="white" onPress={ /** filler input*/ descripAlert}/>
     </SafeAreaView>
     )
-  } 
+  }
 }
 
 const styles = StyleSheet.create({

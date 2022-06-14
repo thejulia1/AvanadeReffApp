@@ -2,30 +2,29 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, Image, Alert, TouchableWithoutFeedback, Button,  Dimensions } from 'react-native';
 import React, { useEffect, useState, Component}  from 'react';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-//import { config } from 'dotenv';
-import { SECRET_API_KEY } from './config';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
+//Imports from my files
+import { SECRET_API_KEY } from './config';
 const lib = require('./dateConverter');
 
 
 
-//filler var for photo description and name
+//url components
+
 const baseurl = 'https://api.nasa.gov/planetary/apod?api_key='
 const urlWithDate = '&date='
-
+//picture dimensions
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const App = () => {
-
-
-
   //Set state
   const [image, setImage] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [errorOccured, setErrorOcured] = useState(false);
 
+  //Spends a requesst to Nasa api
   const fetchingapi = (aUrl) => {
     fetch(aUrl)
       .then((response) => response.json())
@@ -35,7 +34,7 @@ const App = () => {
       console.log(image);
   }
 
-  //date picker config
+  //date picker config from c/p from react-native website
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const showDatePicker = () => {
